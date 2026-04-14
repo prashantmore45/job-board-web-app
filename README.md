@@ -51,4 +51,3 @@ npm install
 npm start
 
 ```
-### 📸 Screenshots
