@@ -1,0 +1,232 @@
+/* --- VARIABLES --- */
+
+:root {
+  --primary: #007bff;
+  --primary-dark: #0056b3;
+  --secondary: #6c757d;
+  --bg-light: #f8f9fa;
+  --text-dark: #333;
+  --white: #ffffff;
+  --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  --max-width: 1200px;
+  --nav-height: 70px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: var(--bg-light);
+  color: var(--text-dark);
+  line-height: 1.6;
+  overflow-x: hidden; 
+}
+
+
+/* --- LAYOUT UTILITIES --- */
+
+.app-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.main-content {
+  flex: 1;
+  width: 100%;
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+
+/* Hero Section */
+
+.hero-section {
+  width: 100vw;
+  position: relative;
+  left: 50%;
+  right: 50%;
+  margin-left: -50vw;
+  margin-right: -50vw;
+  margin-top: -2rem;
+  padding: 80px 20px;
+  background: linear-gradient(135deg, #007bff, #6610f2);
+  color: white;
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+
+/* --- NAVBAR --- */
+
+.navbar {
+  height: var(--nav-height);
+  background: var(--white);
+  box-shadow: var(--shadow);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 2rem;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+.logo {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: var(--primary);
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.nav-links {
+  display: flex;
+  gap: 20px;
+  align-items: center; 
+  flex-direction: row; 
+}
+
+.nav-item {
+  text-decoration: none;
+  color: var(--text-dark);
+  font-weight: 500;
+  transition: color 0.3s;
+  cursor: pointer;
+  white-space: nowrap; 
+}
+
+.nav-item:hover { color: var(--primary); }
+
+.user-greeting {
+  font-weight: bold;
+  color: var(--primary);
+  margin-left: 10px;
+  white-space: nowrap;
+}
+
+.btn-nav {
+  padding: 8px 20px;
+  border-radius: 5px;
+  border: none;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.btn-primary { background: var(--primary); color: white; }
+.btn-outline { border: 1px solid var(--primary); color: var(--primary); background: transparent; }
+
+
+/* --- MOBILE MENU --- */
+
+.mobile-menu-icon {
+  display: none;
+  font-size: 1.8rem;
+  cursor: pointer;
+}
+
+
+/* --- FOOTER --- */
+
+.footer {
+  background: #212529;
+  color: #adb5bd;
+  text-align: center;
+  padding: 2rem;
+  margin-top: auto;
+}
+
+
+/* --- CARDS & GRID --- */
+
+.job-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); 
+  gap: 25px;
+  width: 100%;
+}
+
+.card {
+  background: var(--white);
+  padding: 25px;
+  border-radius: 12px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  border: 1px solid #eee;
+  transition: transform 0.2s, box-shadow 0.2s;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.card:hover { 
+  transform: translateY(-5px); 
+  box-shadow: 0 10px 15px rgba(0,0,0,0.1); 
+}
+
+
+/* --- FORMS --- */
+
+.form-box {
+  background: var(--white);
+  padding: 40px;
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+  width: 100%;
+  max-width: 500px;
+  margin: 40px auto;
+}
+
+input, select, textarea {
+  width: 100%;
+  padding: 12px;
+  margin: 10px 0;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 1rem;
+}
+
+button {
+  width: 100%;
+  padding: 12px;
+  border: none;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+
+/* --- RESPONSIVENESS (MOBILE) --- */
+
+@media (max-width: 768px) {
+  .navbar { padding: 0 1rem; }
+  
+  .mobile-menu-icon { display: block; } 
+
+  .nav-links {
+    position: absolute;
+    top: var(--nav-height);
+    left: 0;
+    width: 100%;
+    background: var(--white);
+    flex-direction: column;
+    align-items: center;
+    padding: 20px 0;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    display: none; 
+  }
+
+  .nav-links.active { display: flex; } 
+  
+  .user-greeting { margin: 10px 0; } 
+
+  .main-content { padding: 1rem; }
+  
+  .hero-section {
+    width: 100vw;
+    margin-left: -50vw;
+    margin-right: -50vw;
+    padding: 60px 15px;
+  }
+}
