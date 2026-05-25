@@ -50,6 +50,23 @@ const createJob = async (req, res) => {
     return res.status(403).json({ message: "Access denied. Only Employers can post jobs." });
   }
 
+  // Validate job fields
+  if (!title || title.trim().length < 3) {
+    return res.status(400).json({ message: "Job title must be at least 3 characters long." });
+  }
+  if (!company || company.trim().length < 2) {
+    return res.status(400).json({ message: "Company name must be at least 2 characters long." });
+  }
+  if (!location || location.trim().length < 2) {
+    return res.status(400).json({ message: "Location must be at least 2 characters long." });
+  }
+  if (!description || description.trim().length < 10) {
+    return res.status(400).json({ message: "Description must be at least 10 characters long." });
+  }
+  if (!salary || salary.trim().length < 1) {
+    return res.status(400).json({ message: "Salary information is required." });
+  }
+
   try {
     const job = new Job({
       title,
@@ -64,7 +81,7 @@ const createJob = async (req, res) => {
     const createdJob = await job.save();
     res.status(201).json(createdJob);
   } catch (error) {
-    res.status(500).json({ message: "Failed to create job" });
+    res.status(400).json({ message: error.message || "Failed to create job" });
   }
 };
 
@@ -114,6 +131,5 @@ const updateJob = async (req, res) => {
     res.status(500).json({ message: "Server Error" });
   }
 };
-
 
 module.exports = { getJobs, getJobById, createJob, deleteJob, updateJob };
