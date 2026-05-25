@@ -1,53 +1,83 @@
-# 🚀 Level 2 Task: Job Board Application
+# 💼 JobBoard Web: Full-Stack Recruitment Portal
 
-A robust recruitment platform built with the **MERN Stack** (MongoDB, Express.js, React, Node.js). This application facilitates the hiring process by connecting Employers with Candidates through a feature-rich interface.
+A comprehensive recruitment platform designed to bridge the gap between employers and job seekers. Built with the MERN Stack, this application features secure role-based access, real-time email notifications, and seamless document handling.
 
-🔴 **Live Demo:** [Insert Your Vercel Link Here]  
-⚙️ **Backend API:** [Insert Your Render Link Here]
+🔴 **Live Demo:** https://job-board-seven-beige.vercel.app/
+
+⚙️ **Backend API:** https://job-board-backend-nohm.onrender.com
+
+## 🚀 Professional Highlights
+
+- **Role-Based Architecture:** Distinct workflows for Employers (Post/Manage) and Candidates (Search/Apply).
+- **Automated Communication:** Integrated Nodemailer for instant email alerts upon application submission.
+- **Secure Document Management:** Handled via Multer for robust PDF resume uploads.
+- **State Management:** Utilized React Context API for seamless user sessions across the platform.
 
 ## ✨ Key Features
 
-### 🏢 For Employers (Admin)
-- **Dashboard:** centralized hub to view active job postings.
-- **Job Management:** Post new jobs, **Edit** details, or **Delete** listings.
-- **Applicant Tracking:** View list of applicants, download **PDF Resumes**, and update status (**Accept/Reject**).
-- **Automated Emails:** Receive instant email notifications via **Nodemailer** when a candidate applies.
+### 🏢 Employer Dashboard (Admin)
 
-### 👨‍💻 For Candidates (Job Seekers)
-- **Job Search:** Filter jobs by Keyword (Title) and Location.
-- **One-Click Apply:** Securely upload resumes (PDF) to apply for jobs.
-- **Application History:** Track applied jobs and see real-time status updates (e.g., "Accepted").
-- **Profile Management:** Update personal details.
+- **Job Lifecycle Management:** Full CRUD operations (Create, Read, Update, Delete) for job listings.
+- **Applicant Tracking System (ATS):** View candidate lists, download resumes directly, and manage application statuses (Accept/Reject).
+- **Instant Notifications:** Real-time email triggers to stay updated on new talent.
 
-### 🛡️ Security & Architecture
-- **Authentication:** JWT-based login/signup with role separation (Employer vs. Candidate).
-- **Protection:** Protected Routes ensure users cannot access unauthorized pages.
-- **File Handling:** Server-side file upload handling using **Multer**.
+### 👨‍💻 Candidate Experience
 
-## 🛠️ Tech Stack
+- **Advanced Search:** Filter listings by keyword and location.
+- **One-Click Applications:** Fast-track application process with secure file uploads.
+- **Personal Tracking:** A dedicated "Application History" section to monitor progress and status updates.
 
-- **Frontend:** React.js, React Router, Context API, CSS3
-- **Backend:** Node.js, Express.js
-- **Database:** MongoDB Atlas
-- **Tools:** Nodemailer (Email), Multer (File Upload), Bcrypt (Password Hashing)
+## 🛠️ Technical Stack
 
-## 🚀 How to Run Locally
+| Layer | Technology |
+|------|------------|
+| Frontend | React.js, React Router, Context API, CSS3 |
+| Backend | Node.js, Express.js |
+| Database | MongoDB Atlas |
+| Security | JWT (JSON Web Tokens), Bcrypt.js |
+| Utilities | Nodemailer, Multer |
 
-1. **Clone the repository**
+## ⚙️ Installation & Setup
 
-2. **Backend Setup:**
+### Prerequisites
+
+- Node.js (v18+)
+- MongoDB Atlas Account
+- HP Victus or similar dev environment with Windows 11 / Linux
+
+### 1. Clone & Install
+
+```bash
+git clone https://github.com/prashantmore45/job-board-web-app.git
+cd job-board-web-app
+```
+
+### 2. Backend Configuration
+
+Create a `.env` file in the `/backend` directory:
+
+```env
+PORT=5000
+MONGO_URI=your_mongodb_uri
+JWT_SECRET=your_secret_key
+EMAIL_USER=your_email
+EMAIL_PASS=your_app_password
+```
+
 ```bash
 cd backend
 npm install
-# Create .env file with MONGO_URI, JWT_SECRET, EMAIL_USER, EMAIL_PASS
 npm start
-
 ```
-3. **Frontend Setup**
-```Bash
 
-cd frontend
+### 3. Frontend Configuration
+
+```bash
+cd ../frontend
 npm install
 npm start
-
 ```
+
+## 📜 Attribution
+
+This project was originally developed during a Web Development Internship at CodSoft (Jan-Feb 2026). It has since been refactored and migrated to this dedicated repository for enhanced maintenance and feature scaling.
