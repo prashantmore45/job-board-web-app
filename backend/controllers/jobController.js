@@ -1,4 +1,17 @@
 const Job = require("../models/Job");
+const { escapeRegex, isValidObjectId } = require("../utils/validators");
+
+// Only these fields may ever be written from a request body. Anything else
+// (notably postedBy) is dropped, so ownership cannot be reassigned.
+const JOB_FIELDS = ["title", "company", "location", "description", "salary", "type"];
+
+const pickJobFields = (body) => {
+  const out = {};
+  for (const field of JOB_FIELDS) {
+    if (body[field] !== undefined) out[field] = body[field];
+  }
+  return out;
+};
 
 /* Fetch jobs with search (optional) & @route   GET /api/jobs?keyword=React&location=Remote */
 
@@ -8,16 +21,18 @@ const getJobs = async (req, res) => {
 
     let query = {};
 
-    if (keyword) {
-      query.title = { $regex: keyword, $options: "i" }; 
+    // Input is escaped before it reaches $regex: unescaped user input lets a
+    // crafted pattern such as (a+)+$ pin the database CPU (ReDoS).
+    if (typeof keyword === "string" && keyword.trim()) {
+      query.title = { $regex: escapeRegex(keyword.trim()), $options: "i" };
     }
 
-    if (location) {
-      query.location = { $regex: location, $options: "i" };
+    if (typeof location === "string" && location.trim()) {
+      query.location = { $regex: escapeRegex(location.trim()), $options: "i" };
     }
 
     const jobs = await Job.find(query).sort({ createdAt: -1 });
-    
+
     res.json(jobs);
   } catch (error) {
     res.status(500).json({ message: "Server Error" });
@@ -29,6 +44,10 @@ const getJobs = async (req, res) => {
 
 const getJobById = async (req, res) => {
   try {
+    if (!isValidObjectId(req.params.id)) {
+      return res.status(404).json({ message: "Job not found" });
+    }
+
     const job = await Job.findById(req.params.id).populate("postedBy", "name email");
     if (job) {
       res.json(job);
@@ -51,31 +70,31 @@ const createJob = async (req, res) => {
   }
 
   // Validate job fields
-  if (!title || title.trim().length < 3) {
+  if (typeof title !== "string" || title.trim().length < 3) {
     return res.status(400).json({ message: "Job title must be at least 3 characters long." });
   }
-  if (!company || company.trim().length < 2) {
+  if (typeof company !== "string" || company.trim().length < 2) {
     return res.status(400).json({ message: "Company name must be at least 2 characters long." });
   }
-  if (!location || location.trim().length < 2) {
+  if (typeof location !== "string" || location.trim().length < 2) {
     return res.status(400).json({ message: "Location must be at least 2 characters long." });
   }
-  if (!description || description.trim().length < 10) {
+  if (typeof description !== "string" || description.trim().length < 10) {
     return res.status(400).json({ message: "Description must be at least 10 characters long." });
   }
-  if (!salary || salary.trim().length < 1) {
+  if (typeof salary !== "string" || salary.trim().length < 1) {
     return res.status(400).json({ message: "Salary information is required." });
   }
 
   try {
     const job = new Job({
-      title,
-      company,
-      location,
-      description,
-      salary,
+      title: title.trim(),
+      company: company.trim(),
+      location: location.trim(),
+      description: description.trim(),
+      salary: salary.trim(),
       type,
-      postedBy: req.user._id 
+      postedBy: req.user._id
     });
 
     const createdJob = await job.save();
@@ -90,6 +109,10 @@ const createJob = async (req, res) => {
 
 const deleteJob = async (req, res) => {
   try {
+    if (!isValidObjectId(req.params.id)) {
+      return res.status(404).json({ message: "Job not found" });
+    }
+
     const job = await Job.findById(req.params.id);
 
     if (!job) {
@@ -112,6 +135,10 @@ const deleteJob = async (req, res) => {
 
 const updateJob = async (req, res) => {
   try {
+    if (!isValidObjectId(req.params.id)) {
+      return res.status(404).json({ message: "Job not found" });
+    }
+
     const job = await Job.findById(req.params.id);
 
     if (!job) {
@@ -122,12 +149,20 @@ const updateJob = async (req, res) => {
       return res.status(401).json({ message: "Not authorized to update this job" });
     }
 
-    const updatedJob = await Job.findByIdAndUpdate(req.params.id, req.body, {
-      new: true, 
+    // Whitelist the payload and run schema validators, so an edit can no longer
+    // reassign postedBy or write values that would fail on create.
+    const updates = pickJobFields(req.body);
+
+    const updatedJob = await Job.findByIdAndUpdate(req.params.id, updates, {
+      new: true,
+      runValidators: true,
     });
 
     res.json(updatedJob);
   } catch (error) {
+    if (error.name === "ValidationError") {
+      return res.status(400).json({ message: error.message });
+    }
     res.status(500).json({ message: "Server Error" });
   }
 };
