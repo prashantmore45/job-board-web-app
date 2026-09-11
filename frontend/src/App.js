@@ -22,10 +22,10 @@ import EditJob from "./pages/EditJob";
 function App() {
   return (
     <Router>
-      <div className="app-container">
+      <div className="flex flex-col min-h-screen bg-slate-50 text-slate-900 transition-colors duration-300 dark:bg-slate-900 dark:text-slate-100">
         <Navbar /> 
 
-        <div className="main-content">
+        <main className="flex-grow w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<Login />} />
@@ -40,7 +40,7 @@ function App() {
             <Route path="/my-applications" element={<ProtectedRoute><MyApplications /></ProtectedRoute>} />
             <Route path="/edit-job/:id" element={<ProtectedRoute><EditJob /></ProtectedRoute>} />
           </Routes>
-        </div>
+        </main>
 
         <Footer />
       </div>
