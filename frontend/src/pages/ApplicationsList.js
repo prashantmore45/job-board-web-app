@@ -49,19 +49,21 @@ function SortableItem({ id, application }) {
       style={style}
       {...attributes}
       {...listeners}
-      className="bg-white dark:bg-slate-800 p-4 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 cursor-grab active:cursor-grabbing mb-3 group"
+      className="glass-card p-4 rounded-xl cursor-grab active:cursor-grabbing mb-3 group relative overflow-hidden"
     >
-      <h4 className="font-bold text-slate-900 dark:text-white line-clamp-1">
+      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 ease-in-out"></div>
+      
+      <h4 className="font-bold text-slate-900 dark:text-white line-clamp-1 relative z-10 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
         {application.applicant ? application.applicant.name : "Unknown"}
       </h4>
-      <p className="text-sm text-slate-500 dark:text-slate-400 mb-3 line-clamp-1">
+      <p className="text-sm text-slate-500 dark:text-slate-400 mb-4 line-clamp-1 font-medium relative z-10">
         {application.applicant ? application.applicant.email : "N/A"}
       </p>
       
-      <div className="flex gap-2">
+      <div className="flex gap-2 relative z-10">
         <button 
           onPointerDown={(e) => { e.stopPropagation(); document.dispatchEvent(new CustomEvent('openProfile', { detail: application.applicant })); }}
-          className="flex-1 py-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 text-xs font-semibold text-center rounded transition-colors"
+          className="flex-1 py-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700/50 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 text-xs font-bold text-center rounded-lg transition-colors border border-slate-200 dark:border-slate-700"
         >
           👤 Profile
         </button>
@@ -71,7 +73,7 @@ function SortableItem({ id, application }) {
             target="_blank" 
             rel="noopener noreferrer"
             onPointerDown={(e) => e.stopPropagation()} 
-            className="flex-1 py-1.5 bg-primary-50 hover:bg-primary-100 dark:bg-primary-900/20 dark:hover:bg-primary-900/40 text-primary-700 dark:text-primary-400 text-xs font-semibold text-center rounded transition-colors"
+            className="flex-1 py-1.5 bg-primary-50 hover:bg-primary-100 dark:bg-primary-900/30 dark:hover:bg-primary-900/50 text-primary-700 dark:text-primary-400 text-xs font-bold text-center rounded-lg transition-colors border border-primary-200 dark:border-primary-800"
           >
             📄 Resume
           </a>
@@ -89,16 +91,16 @@ function KanbanColumn({ id, title, applications }) {
   return (
     <div 
       ref={setNodeRef}
-      className="bg-slate-50 dark:bg-slate-900/50 p-4 rounded-xl min-w-[280px] w-[280px] flex-shrink-0 flex flex-col max-h-[75vh]"
+      className="glass-panel p-4 rounded-2xl min-w-[300px] w-[300px] flex-shrink-0 flex flex-col max-h-[75vh]"
     >
-      <div className="flex justify-between items-center mb-4">
-        <h3 className="font-bold text-slate-700 dark:text-slate-300 uppercase text-sm tracking-wider">{title}</h3>
-        <span className="bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 text-xs font-bold px-2 py-1 rounded-full">
+      <div className="flex justify-between items-center mb-5 border-b border-slate-200/50 dark:border-slate-700/50 pb-3">
+        <h3 className="font-extrabold text-slate-800 dark:text-slate-200 uppercase text-xs tracking-widest">{title}</h3>
+        <span className="bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-bold px-2.5 py-1 rounded-full shadow-inner">
           {applications.length}
         </span>
       </div>
       
-      <div className="flex-1 overflow-y-auto pr-1 pb-2 scrollbar-thin">
+      <div className="flex-1 overflow-y-auto pr-2 pb-2 custom-scrollbar">
         <SortableContext 
           id={id}
           items={applications.map(app => app._id)}
@@ -109,7 +111,7 @@ function KanbanColumn({ id, title, applications }) {
           ))}
         </SortableContext>
         {applications.length === 0 && (
-          <div className="h-24 border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-lg flex items-center justify-center text-slate-400 dark:text-slate-500 text-sm">
+          <div className="h-24 border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-xl flex items-center justify-center text-slate-400 dark:text-slate-500 text-sm font-medium bg-slate-50/50 dark:bg-slate-800/30">
             Drop here
           </div>
         )}
@@ -263,11 +265,11 @@ function ApplicationsList() {
 
           <DragOverlay>
             {activeApplication ? (
-              <div className="bg-white dark:bg-slate-800 p-4 rounded-lg shadow-xl border-2 border-primary-500 opacity-90 rotate-2 w-[248px]">
+              <div className="glass-card p-4 rounded-xl shadow-2xl border border-primary-400 dark:border-primary-500 opacity-95 rotate-3 w-[268px] scale-105">
                 <h4 className="font-bold text-slate-900 dark:text-white line-clamp-1">
                   {activeApplication.applicant ? activeApplication.applicant.name : "Unknown"}
                 </h4>
-                <p className="text-sm text-slate-500 dark:text-slate-400">
+                <p className="text-sm text-slate-500 dark:text-slate-400 font-medium">
                   Dragging...
                 </p>
               </div>
@@ -278,56 +280,60 @@ function ApplicationsList() {
       
       {/* Candidate Profile Modal */}
       {selectedCandidate && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm" onClick={() => setSelectedCandidate(null)}>
-          <div className="bg-white dark:bg-slate-800 rounded-xl shadow-2xl max-w-lg w-full p-6 relative" onClick={e => e.stopPropagation()}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm" onClick={() => setSelectedCandidate(null)}>
+          <div className="glass-panel shadow-2xl max-w-lg w-full p-8 rounded-3xl relative overflow-hidden" onClick={e => e.stopPropagation()}>
+            <div className="absolute top-0 right-0 w-32 h-32 bg-primary-400/20 dark:bg-primary-600/20 rounded-full blur-2xl transform translate-x-10 -translate-y-10"></div>
+            
             <button 
               onClick={() => setSelectedCandidate(null)}
-              className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+              className="absolute top-6 right-6 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 bg-slate-100 dark:bg-slate-800 rounded-full w-8 h-8 flex items-center justify-center transition-colors z-20"
             >
               ✖
             </button>
-            <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-1">{selectedCandidate.name}</h2>
-            <a href={`mailto:${selectedCandidate.email}`} className="text-primary-600 dark:text-primary-400 hover:underline">{selectedCandidate.email}</a>
-            
-            <div className="mt-6 space-y-4 text-sm text-slate-700 dark:text-slate-300">
-              <div>
-                <span className="font-bold block mb-1">Skills:</span>
-                {selectedCandidate.skills && selectedCandidate.skills.length > 0 ? (
-                  <div className="flex flex-wrap gap-2">
-                    {selectedCandidate.skills.map((skill, i) => (
-                      <span key={i} className="px-2 py-1 bg-slate-100 dark:bg-slate-700 rounded-md">{skill}</span>
-                    ))}
+            <div className="relative z-10">
+              <h2 className="text-3xl font-extrabold text-slate-900 dark:text-white mb-2">{selectedCandidate.name}</h2>
+              <a href={`mailto:${selectedCandidate.email}`} className="text-primary-600 dark:text-primary-400 hover:underline font-medium">{selectedCandidate.email}</a>
+              
+              <div className="mt-8 space-y-6 text-sm text-slate-700 dark:text-slate-300">
+                <div>
+                  <span className="font-extrabold block mb-2 uppercase text-xs tracking-wider text-slate-500 dark:text-slate-400">Skills</span>
+                  {selectedCandidate.skills && selectedCandidate.skills.length > 0 ? (
+                    <div className="flex flex-wrap gap-2">
+                      {selectedCandidate.skills.map((skill, i) => (
+                        <span key={i} className="px-3 py-1 bg-primary-50 text-primary-700 dark:bg-primary-900/30 dark:text-primary-300 font-bold rounded-lg border border-primary-100 dark:border-primary-800/50">{skill}</span>
+                      ))}
+                    </div>
+                  ) : <span className="text-slate-400 italic font-medium">Not provided</span>}
+                </div>
+                
+                <div>
+                  <span className="font-extrabold block mb-2 uppercase text-xs tracking-wider text-slate-500 dark:text-slate-400">Experience</span>
+                  <p className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl border border-slate-200 dark:border-slate-700">{selectedCandidate.experience || <span className="text-slate-400 italic">Not provided</span>}</p>
+                </div>
+
+                <div>
+                  <span className="font-extrabold block mb-2 uppercase text-xs tracking-wider text-slate-500 dark:text-slate-400">Bio</span>
+                  <p className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl border border-slate-200 dark:border-slate-700">{selectedCandidate.bio || <span className="text-slate-400 italic">Not provided</span>}</p>
+                </div>
+
+                {selectedCandidate.portfolioUrl && (
+                  <div>
+                    <span className="font-extrabold block mb-2 uppercase text-xs tracking-wider text-slate-500 dark:text-slate-400">Portfolio</span>
+                    <a href={selectedCandidate.portfolioUrl} target="_blank" rel="noreferrer" className="text-primary-600 dark:text-primary-400 hover:underline font-medium break-all">
+                      {selectedCandidate.portfolioUrl}
+                    </a>
                   </div>
-                ) : <span className="text-slate-400 italic">Not provided</span>}
+                )}
               </div>
               
-              <div>
-                <span className="font-bold block mb-1">Experience:</span>
-                <p>{selectedCandidate.experience || <span className="text-slate-400 italic">Not provided</span>}</p>
+              <div className="mt-8 pt-6 border-t border-slate-200 dark:border-slate-700/50 flex justify-end">
+                <button 
+                  onClick={() => setSelectedCandidate(null)}
+                  className="px-6 py-2.5 bg-slate-200 hover:bg-slate-300 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-800 dark:text-white font-bold rounded-xl transition"
+                >
+                  Close
+                </button>
               </div>
-
-              <div>
-                <span className="font-bold block mb-1">Bio:</span>
-                <p>{selectedCandidate.bio || <span className="text-slate-400 italic">Not provided</span>}</p>
-              </div>
-
-              {selectedCandidate.portfolioUrl && (
-                <div>
-                  <span className="font-bold block mb-1">Portfolio:</span>
-                  <a href={selectedCandidate.portfolioUrl} target="_blank" rel="noreferrer" className="text-primary-600 dark:text-primary-400 hover:underline">
-                    {selectedCandidate.portfolioUrl}
-                  </a>
-                </div>
-              )}
-            </div>
-            
-            <div className="mt-8 pt-4 border-t border-slate-200 dark:border-slate-700 flex justify-end">
-              <button 
-                onClick={() => setSelectedCandidate(null)}
-                className="px-4 py-2 bg-slate-200 hover:bg-slate-300 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-800 dark:text-white rounded-lg transition"
-              >
-                Close
-              </button>
             </div>
           </div>
         </div>

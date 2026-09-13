@@ -18,6 +18,12 @@ const userSchema = new mongoose.Schema({
   experience: { type: String, default: "" },
   bio: { type: String, default: "" },
   portfolioUrl: { type: String, default: "" },
+  
+  // Employer Profile Fields
+  companyName: { type: String, default: "" },
+  companyWebsite: { type: String, default: "" },
+  companyLocation: { type: String, default: "" },
+  companyDescription: { type: String, default: "" },
 }, { timestamps: true });
 
 module.exports = mongoose.model("User", userSchema);

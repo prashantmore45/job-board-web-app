@@ -59,15 +59,26 @@ const getProfile = async (req, res) => {
 /* Update User Profile & @route   PUT /api/users/profile */
 const updateProfile = async (req, res) => {
   try {
-    const { name, skills, experience, bio, portfolioUrl } = req.body;
+    const { 
+      name, skills, experience, bio, portfolioUrl,
+      companyName, companyWebsite, companyLocation, companyDescription
+    } = req.body;
     
     const user = await User.findById(req.user._id);
     
     if (name) user.name = name;
-    if (skills !== undefined) user.skills = Array.isArray(skills) ? skills : skills.split(',').map(s => s.trim());
-    if (experience !== undefined) user.experience = experience;
-    if (bio !== undefined) user.bio = bio;
-    if (portfolioUrl !== undefined) user.portfolioUrl = portfolioUrl;
+    
+    if (user.role === 'candidate') {
+      if (skills !== undefined) user.skills = Array.isArray(skills) ? skills : skills.split(',').map(s => s.trim());
+      if (experience !== undefined) user.experience = experience;
+      if (bio !== undefined) user.bio = bio;
+      if (portfolioUrl !== undefined) user.portfolioUrl = portfolioUrl;
+    } else if (user.role === 'employer') {
+      if (companyName !== undefined) user.companyName = companyName;
+      if (companyWebsite !== undefined) user.companyWebsite = companyWebsite;
+      if (companyLocation !== undefined) user.companyLocation = companyLocation;
+      if (companyDescription !== undefined) user.companyDescription = companyDescription;
+    }
     
     await user.save();
     

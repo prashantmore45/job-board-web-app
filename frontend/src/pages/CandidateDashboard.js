@@ -114,7 +114,7 @@ function CandidateDashboard() {
         </div>
       </div>
 
-      <div className="bg-white dark:bg-slate-800 p-6 rounded-xl shadow-sm border border-slate-100 dark:border-slate-700 mb-8">
+      <div className="glass-panel p-6 rounded-2xl mb-10">
         <form onSubmit={handleSearch} className="flex flex-col gap-4 w-full">
           <div className="flex flex-col md:flex-row gap-4">
             <div className="w-full md:flex-1 relative">
@@ -125,7 +125,7 @@ function CandidateDashboard() {
                 placeholder="Job Title (e.g. React)..." 
                 value={search.keyword}
                 onChange={(e) => setSearch({...search, keyword: e.target.value})}
-                className="w-full pl-10 pr-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-primary-500 bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
+                className="w-full pl-10 pr-4 py-3 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary-500 text-slate-900 dark:text-white transition-all"
               />
             </div>
             <div className="w-full md:flex-1 relative">
@@ -136,7 +136,7 @@ function CandidateDashboard() {
                 placeholder="Location (e.g. Remote)..." 
                 value={search.location}
                 onChange={(e) => setSearch({...search, location: e.target.value})}
-                className="w-full pl-10 pr-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-primary-500 bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
+                className="w-full pl-10 pr-4 py-3 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary-500 text-slate-900 dark:text-white transition-all"
               />
             </div>
           </div>
@@ -146,7 +146,7 @@ function CandidateDashboard() {
               <select 
                 value={search.type} 
                 onChange={(e) => setSearch({...search, type: e.target.value})}
-                className="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-primary-500 bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
+                className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary-500 text-slate-900 dark:text-white transition-all"
               >
                 <option value="">Any Job Type</option>
                 <option value="Full-time">Full-time</option>
@@ -159,7 +159,7 @@ function CandidateDashboard() {
               <select 
                 value={search.workType} 
                 onChange={(e) => setSearch({...search, workType: e.target.value})}
-                className="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-primary-500 bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
+                className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary-500 text-slate-900 dark:text-white transition-all"
               >
                 <option value="">Any Work Type</option>
                 <option value="Remote">Remote</option>
@@ -174,13 +174,13 @@ function CandidateDashboard() {
                 placeholder="Min Salary..." 
                 value={search.minSalary}
                 onChange={(e) => setSearch({...search, minSalary: e.target.value})}
-                className="w-full pl-8 pr-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-primary-500 bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
+                className="w-full pl-8 pr-4 py-3 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary-500 text-slate-900 dark:text-white transition-all"
               />
             </div>
           </div>
 
           <div className="flex gap-2 w-full md:w-auto mt-2">
-            <button type="submit" className="flex-1 md:w-auto px-8 py-3 bg-amber-400 hover:bg-amber-500 text-slate-900 font-bold rounded-lg shadow-sm transition-colors flex justify-center items-center">
+            <button type="submit" className="flex-1 md:w-auto px-8 py-3 bg-primary-600 hover:bg-primary-700 text-white font-bold rounded-xl shadow-md transition-all">
               Search Jobs
             </button>
             
@@ -211,12 +211,15 @@ function CandidateDashboard() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3, delay: index * 0.1 }}
               whileHover={{ y: -5, boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)" }}
-              className="bg-white dark:bg-slate-800 p-6 rounded-xl border border-slate-100 dark:border-slate-700 shadow-sm flex flex-col justify-between h-full transition-all duration-300 cursor-pointer relative group"
+              className="glass-card p-6 rounded-2xl flex flex-col justify-between h-full group cursor-pointer relative overflow-hidden"
               onClick={() => navigate(`/job/${job._id}`)}
             >
+              {/* Decorative background glow on hover */}
+              <div className="absolute top-0 right-0 w-32 h-32 bg-primary-400/10 dark:bg-primary-600/10 rounded-full blur-2xl transform translate-x-10 -translate-y-10 group-hover:scale-150 transition-transform duration-500 pointer-events-none"></div>
+
               <button 
                 onClick={(e) => toggleBookmark(e, job._id)}
-                className="absolute top-4 right-4 p-2 text-slate-400 hover:text-primary-500 transition-colors z-10 bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm rounded-full"
+                className="absolute top-4 right-4 p-2 text-slate-400 hover:text-primary-500 transition-colors z-20 bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm rounded-full shadow-sm"
               >
                 {savedJobs.includes(job._id) ? (
                   <svg className="w-6 h-6 text-primary-500" fill="currentColor" viewBox="0 0 20 20"><path d="M5 4a2 2 0 012-2h6a2 2 0 012 2v14l-5-2.5L5 18V4z" /></svg>
@@ -225,32 +228,34 @@ function CandidateDashboard() {
                 )}
               </button>
 
-              <div className="pr-10">
-                <h3 className="text-xl font-bold text-primary-600 dark:text-primary-400 mb-1 line-clamp-1">{job.title}</h3>
-                <p className="text-slate-800 dark:text-slate-200 font-semibold mb-3">{job.company}</p>
+              <div className="pr-10 relative z-10">
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold text-xl shadow-md mb-4">
+                  {job.company.charAt(0)}
+                </div>
+                <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-1 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors line-clamp-1">{job.title}</h3>
+                <p className="text-slate-500 dark:text-slate-400 font-medium mb-4">{job.company}</p>
                 
-                <div className="flex flex-wrap gap-2 mb-4">
-                  <span className="px-2 py-1 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 text-xs font-medium rounded-md">{job.type}</span>
-                  <span className="px-2 py-1 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 text-xs font-medium rounded-md">{job.workType || 'On-site'}</span>
+                <div className="flex flex-wrap gap-2 mb-6">
+                  <span className="px-3 py-1 bg-slate-100 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 text-xs font-bold uppercase tracking-wider rounded-full">{job.type}</span>
+                  <span className="px-3 py-1 bg-slate-100 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 text-xs font-bold uppercase tracking-wider rounded-full">{job.workType || 'On-site'}</span>
                 </div>
 
-                <div className="flex flex-col gap-2 text-sm text-slate-600 dark:text-slate-400">
+                <div className="flex flex-col gap-2 text-sm text-slate-600 dark:text-slate-300 font-medium">
                   <div className="flex items-center">
-                    <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                    <svg className="w-4 h-4 mr-2 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
                     {job.location}
                   </div>
-                  <div className="flex items-center text-green-600 dark:text-green-400 font-medium">
+                  <div className="flex items-center text-green-600 dark:text-green-500">
                     <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                     ${job.salaryMin ? job.salaryMin.toLocaleString() : 'N/A'} - ${job.salaryMax ? job.salaryMax.toLocaleString() : 'N/A'}
                   </div>
                 </div>
               </div>
               
-              <button 
-                  className="mt-6 w-full py-2.5 bg-primary-50 hover:bg-primary-100 dark:bg-primary-900/30 dark:hover:bg-primary-900/50 text-primary-700 dark:text-primary-300 font-semibold rounded-lg shadow-sm transition-colors opacity-0 group-hover:opacity-100"
-              >
-                  View Details
-              </button>
+              <div className="mt-8 pt-4 border-t border-slate-100 dark:border-slate-700/50 flex items-center justify-between relative z-10">
+                <span className="text-sm text-slate-400 font-medium">Posted recently</span>
+                <span className="text-primary-600 dark:text-primary-400 font-bold text-sm group-hover:translate-x-1 transition-transform">Apply Now &rarr;</span>
+              </div>
             </motion.div>
           ))}
         </div>

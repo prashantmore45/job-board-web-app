@@ -112,23 +112,30 @@ function JobDetails() {
         </button>
       </div>
       
-      <div className="bg-white dark:bg-slate-800 rounded-xl shadow-md border border-slate-100 dark:border-slate-700 overflow-hidden mb-8">
-        <div className="p-8 border-b border-slate-100 dark:border-slate-700">
-          <h1 className="text-3xl md:text-4xl font-extrabold text-slate-900 dark:text-white mb-2">{job.title}</h1>
-          <h2 className="text-xl text-primary-600 dark:text-primary-400 font-medium mb-6">at {job.company}</h2>
+      <div className="glass-panel rounded-2xl overflow-hidden mb-12">
+        <div className="p-8 border-b border-slate-200/50 dark:border-slate-700/50 relative">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-primary-400/10 dark:bg-primary-600/10 rounded-full blur-2xl transform translate-x-10 -translate-y-10"></div>
+          <h1 className="text-3xl md:text-5xl font-extrabold text-slate-900 dark:text-white mb-3 tracking-tight relative z-10">{job.title}</h1>
+          <h2 className="text-xl md:text-2xl text-primary-600 dark:text-primary-400 font-bold mb-8 relative z-10">at {job.company}</h2>
           
-          <div className="flex flex-wrap gap-4 bg-slate-50 dark:bg-slate-900/50 p-4 rounded-lg">
+          <div className="flex flex-wrap gap-4 bg-slate-50/50 dark:bg-slate-800/50 backdrop-blur-sm border border-slate-200/50 dark:border-slate-700/50 p-6 rounded-xl relative z-10">
             <div className="flex items-center text-slate-700 dark:text-slate-300">
-              <span className="text-xl mr-2">📍</span> 
-              <span className="font-semibold mr-1">Location:</span> {job.location} ({job.workType || 'On-site'})
+              <span className="flex items-center justify-center w-8 h-8 rounded-lg bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 mr-3">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /></svg>
+              </span>
+              <span className="font-bold mr-2">Location:</span> {job.location} ({job.workType || 'On-site'})
             </div>
             <div className="flex items-center text-slate-700 dark:text-slate-300">
-              <span className="text-xl mr-2">💰</span> 
-              <span className="font-semibold mr-1">Salary:</span> ${job.salaryMin ? job.salaryMin.toLocaleString() : 'N/A'} - ${job.salaryMax ? job.salaryMax.toLocaleString() : 'N/A'}
+              <span className="flex items-center justify-center w-8 h-8 rounded-lg bg-green-100 dark:bg-green-900/50 text-green-600 dark:text-green-400 mr-3">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+              </span>
+              <span className="font-bold mr-2">Salary:</span> ${job.salaryMin ? job.salaryMin.toLocaleString() : 'N/A'} - ${job.salaryMax ? job.salaryMax.toLocaleString() : 'N/A'}
             </div>
             <div className="flex items-center text-slate-700 dark:text-slate-300">
-              <span className="text-xl mr-2">🕒</span> 
-              <span className="font-semibold mr-1">Type:</span> {job.type}
+              <span className="flex items-center justify-center w-8 h-8 rounded-lg bg-amber-100 dark:bg-amber-900/50 text-amber-600 dark:text-amber-400 mr-3">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
+              </span>
+              <span className="font-bold mr-2">Type:</span> {job.type}
             </div>
           </div>
         </div>
@@ -144,7 +151,7 @@ function JobDetails() {
 
       <motion.div 
         whileHover={{ scale: 1.01 }}
-        className="bg-primary-50 dark:bg-slate-800 border-2 border-dashed border-primary-300 dark:border-primary-700 rounded-xl p-8 text-center"
+        className="glass-panel border-2 border-dashed border-primary-300 dark:border-primary-700 rounded-2xl p-8 text-center"
       >
         <h3 className="text-2xl font-bold text-primary-800 dark:text-primary-400 mb-2">Ready to Apply?</h3>
         <p className="text-slate-600 dark:text-slate-400 mb-6">Upload your Resume (PDF only)</p>
@@ -165,7 +172,7 @@ function JobDetails() {
           {resume && <p className="text-sm text-primary-600 font-medium mb-4">Selected file: {resume.name}</p>}
           <button 
             type="submit" 
-            className="w-full px-6 py-3 text-base font-bold text-white bg-primary-600 hover:bg-primary-700 rounded-lg shadow-md transition-colors"
+            className="w-full px-6 py-4 text-base font-bold text-white bg-primary-600 hover:bg-primary-700 rounded-xl shadow-md transition-all"
           >
             Submit Application
           </button>

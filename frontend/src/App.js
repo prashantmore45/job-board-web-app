@@ -73,23 +73,29 @@ function App() {
     <Router>
       <div className="flex flex-col min-h-screen bg-slate-50 dark:bg-slate-900 transition-colors duration-200">
         <Navbar theme={theme} toggleTheme={toggleTheme} notifications={notifications} setNotifications={setNotifications} />
-        <main className="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <main className="flex-1 w-full flex flex-col">
           <Routes>
             <Route path="/" element={<Home />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-            
-            <Route path="/employer-dashboard" element={<PrivateRoute role="employer"><EmployerDashboard /></PrivateRoute>} />
-            <Route path="/post-job" element={<PrivateRoute role="employer"><PostJob /></PrivateRoute>} />
-            <Route path="/edit-job/:id" element={<PrivateRoute role="employer"><EditJob /></PrivateRoute>} />
-            <Route path="/applications/:jobId" element={<PrivateRoute role="employer"><ApplicationsList /></PrivateRoute>} />
+            <Route path="/*" element={
+              <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                <Routes>
+                  <Route path="login" element={<Login />} />
+                  <Route path="register" element={<Register />} />
+                  
+                  <Route path="employer-dashboard" element={<PrivateRoute role="employer"><EmployerDashboard /></PrivateRoute>} />
+                  <Route path="post-job" element={<PrivateRoute role="employer"><PostJob /></PrivateRoute>} />
+                  <Route path="edit-job/:id" element={<PrivateRoute role="employer"><EditJob /></PrivateRoute>} />
+                  <Route path="applications/:jobId" element={<PrivateRoute role="employer"><ApplicationsList /></PrivateRoute>} />
 
-            <Route path="/candidate-dashboard" element={<PrivateRoute role="candidate"><CandidateDashboard /></PrivateRoute>} />
-            <Route path="/my-applications" element={<PrivateRoute role="candidate"><MyApplications /></PrivateRoute>} />
-            <Route path="/saved-jobs" element={<PrivateRoute role="candidate"><SavedJobs /></PrivateRoute>} />
-            
-            <Route path="/job/:id" element={<PrivateRoute><JobDetails /></PrivateRoute>} />
-            <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
+                  <Route path="candidate-dashboard" element={<PrivateRoute role="candidate"><CandidateDashboard /></PrivateRoute>} />
+                  <Route path="my-applications" element={<PrivateRoute role="candidate"><MyApplications /></PrivateRoute>} />
+                  <Route path="saved-jobs" element={<PrivateRoute role="candidate"><SavedJobs /></PrivateRoute>} />
+                  
+                  <Route path="job/:id" element={<PrivateRoute><JobDetails /></PrivateRoute>} />
+                  <Route path="profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
+                </Routes>
+              </div>
+            } />
           </Routes>
         </main>
         <Footer />
