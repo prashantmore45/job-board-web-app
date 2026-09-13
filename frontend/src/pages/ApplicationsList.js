@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import API from "../services/api";
-import { motion } from "framer-motion";
 import {
   DndContext,
   closestCorners,
@@ -9,10 +8,10 @@ import {
   PointerSensor,
   useSensor,
   useSensors,
-  DragOverlay
+  DragOverlay,
+  useDroppable
 } from "@dnd-kit/core";
 import {
-  arrayMove,
   SortableContext,
   sortableKeyboardCoordinates,
   verticalListSortingStrategy,
@@ -59,22 +58,39 @@ function SortableItem({ id, application }) {
         {application.applicant ? application.applicant.email : "N/A"}
       </p>
       
-      <a 
-        href={`${(process.env.REACT_APP_BACKEND_URL || "http://localhost:5000").replace(/\/$/, "")}/${application.resume.replace(/\\/g, "/")}`} 
-        target="_blank" 
-        rel="noopener noreferrer"
-        onPointerDown={(e) => e.stopPropagation()} // Prevent dragging when clicking link
-        className="block w-full py-1.5 bg-primary-50 hover:bg-primary-100 dark:bg-primary-900/20 dark:hover:bg-primary-900/40 text-primary-700 dark:text-primary-400 text-xs font-semibold text-center rounded transition-colors"
-      >
-        📄 View Resume
-      </a>
+      <div className="flex gap-2">
+        <button 
+          onPointerDown={(e) => { e.stopPropagation(); document.dispatchEvent(new CustomEvent('openProfile', { detail: application.applicant })); }}
+          className="flex-1 py-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 text-xs font-semibold text-center rounded transition-colors"
+        >
+          👤 Profile
+        </button>
+        {application.resume && (
+          <a 
+            href={`${(process.env.REACT_APP_BACKEND_URL || "http://localhost:5000").replace(/\/$/, "")}/${application.resume.replace(/\\/g, "/")}`} 
+            target="_blank" 
+            rel="noopener noreferrer"
+            onPointerDown={(e) => e.stopPropagation()} 
+            className="flex-1 py-1.5 bg-primary-50 hover:bg-primary-100 dark:bg-primary-900/20 dark:hover:bg-primary-900/40 text-primary-700 dark:text-primary-400 text-xs font-semibold text-center rounded transition-colors"
+          >
+            📄 Resume
+          </a>
+        )}
+      </div>
     </div>
   );
 }
 
 function KanbanColumn({ id, title, applications }) {
+  const { setNodeRef } = useDroppable({
+    id: id,
+  });
+
   return (
-    <div className="bg-slate-50 dark:bg-slate-900/50 p-4 rounded-xl min-w-[280px] w-[280px] flex-shrink-0 flex flex-col max-h-[75vh]">
+    <div 
+      ref={setNodeRef}
+      className="bg-slate-50 dark:bg-slate-900/50 p-4 rounded-xl min-w-[280px] w-[280px] flex-shrink-0 flex flex-col max-h-[75vh]"
+    >
       <div className="flex justify-between items-center mb-4">
         <h3 className="font-bold text-slate-700 dark:text-slate-300 uppercase text-sm tracking-wider">{title}</h3>
         <span className="bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 text-xs font-bold px-2 py-1 rounded-full">
@@ -107,6 +123,13 @@ function ApplicationsList() {
   const navigate = useNavigate();
   const [applications, setApplications] = useState([]);
   const [activeId, setActiveId] = useState(null);
+  const [selectedCandidate, setSelectedCandidate] = useState(null);
+
+  useEffect(() => {
+    const handleOpenProfile = (e) => setSelectedCandidate(e.detail);
+    document.addEventListener('openProfile', handleOpenProfile);
+    return () => document.removeEventListener('openProfile', handleOpenProfile);
+  }, []);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -123,10 +146,15 @@ function ApplicationsList() {
     const fetchApplications = async () => {
       try {
         const res = await API.get(`/application/${jobId}`);
-        // Map old 'accepted' status to 'offered' so the board doesn't break for old data
-        const mappedData = res.data.map(app => 
-          app.status === 'accepted' ? { ...app, status: 'offered' } : app
-        );
+        // Map old 'accepted' status to 'offered' and 'pending' to 'applied' so the board doesn't break for old data
+        const mappedData = res.data.map(app => {
+          let newStatus = app.status;
+          if (newStatus === 'accepted') newStatus = 'offered';
+          if (newStatus === 'pending') newStatus = 'applied';
+          return { ...app, status: newStatus };
+        });
+        console.log("Fetched applications:", res.data);
+        console.log("Mapped applications:", mappedData);
         setApplications(mappedData);
       } catch (error) {
         alert("Failed to fetch applications.");
@@ -158,23 +186,7 @@ function ApplicationsList() {
     if (!activeStatus || !overStatus || activeStatus === overStatus) return;
 
     setApplications((prev) => {
-      const activeItems = prev.filter(app => app.status === activeStatus);
-      const overItems = prev.filter(app => app.status === overStatus);
-      
       const activeIndex = prev.findIndex(app => app._id === activeId);
-      const overIndex = prev.findIndex(app => app._id === overId);
-
-      let newIndex;
-      if (overId in COLUMNS.map(c => c.id)) {
-        newIndex = overItems.length + 1;
-      } else {
-        const isBelowOverItem =
-          over &&
-          active.rect.current.translated &&
-          active.rect.current.translated.top > over.rect.top + over.rect.height;
-        const modifier = isBelowOverItem ? 1 : 0;
-        newIndex = overIndex >= 0 ? overIndex + modifier : overItems.length + 1;
-      }
 
       const newItems = [...prev];
       newItems[activeIndex] = { ...newItems[activeIndex], status: overStatus };
@@ -263,6 +275,63 @@ function ApplicationsList() {
           </DragOverlay>
         </DndContext>
       </div>
+      
+      {/* Candidate Profile Modal */}
+      {selectedCandidate && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm" onClick={() => setSelectedCandidate(null)}>
+          <div className="bg-white dark:bg-slate-800 rounded-xl shadow-2xl max-w-lg w-full p-6 relative" onClick={e => e.stopPropagation()}>
+            <button 
+              onClick={() => setSelectedCandidate(null)}
+              className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+            >
+              ✖
+            </button>
+            <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-1">{selectedCandidate.name}</h2>
+            <a href={`mailto:${selectedCandidate.email}`} className="text-primary-600 dark:text-primary-400 hover:underline">{selectedCandidate.email}</a>
+            
+            <div className="mt-6 space-y-4 text-sm text-slate-700 dark:text-slate-300">
+              <div>
+                <span className="font-bold block mb-1">Skills:</span>
+                {selectedCandidate.skills && selectedCandidate.skills.length > 0 ? (
+                  <div className="flex flex-wrap gap-2">
+                    {selectedCandidate.skills.map((skill, i) => (
+                      <span key={i} className="px-2 py-1 bg-slate-100 dark:bg-slate-700 rounded-md">{skill}</span>
+                    ))}
+                  </div>
+                ) : <span className="text-slate-400 italic">Not provided</span>}
+              </div>
+              
+              <div>
+                <span className="font-bold block mb-1">Experience:</span>
+                <p>{selectedCandidate.experience || <span className="text-slate-400 italic">Not provided</span>}</p>
+              </div>
+
+              <div>
+                <span className="font-bold block mb-1">Bio:</span>
+                <p>{selectedCandidate.bio || <span className="text-slate-400 italic">Not provided</span>}</p>
+              </div>
+
+              {selectedCandidate.portfolioUrl && (
+                <div>
+                  <span className="font-bold block mb-1">Portfolio:</span>
+                  <a href={selectedCandidate.portfolioUrl} target="_blank" rel="noreferrer" className="text-primary-600 dark:text-primary-400 hover:underline">
+                    {selectedCandidate.portfolioUrl}
+                  </a>
+                </div>
+              )}
+            </div>
+            
+            <div className="mt-8 pt-4 border-t border-slate-200 dark:border-slate-700 flex justify-end">
+              <button 
+                onClick={() => setSelectedCandidate(null)}
+                className="px-4 py-2 bg-slate-200 hover:bg-slate-300 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-800 dark:text-white rounded-lg transition"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

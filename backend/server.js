@@ -6,6 +6,8 @@ const rateLimit = require("express-rate-limit");
 const connectDB = require("./config/db");
 const fs = require("fs");
 const path = require("path");
+const http = require("http");
+const { initSocket } = require("./socket");
 
 dotenv.config();
 connectDB();
@@ -113,4 +115,8 @@ app.use((err, req, res, next) => {
 });
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Job Board Server running on port ${PORT}`));
+
+const server = http.createServer(app);
+initSocket(server);
+
+server.listen(PORT, () => console.log(`Job Board Server running on port ${PORT}`));

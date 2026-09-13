@@ -12,7 +12,12 @@ const userSchema = new mongoose.Schema({
   },
   
   resume: { type: String, default: "" },
-  savedJobs: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Job' }]
+  savedJobs: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Job' }],
+  // Candidate Profile Fields
+  skills: [{ type: String }],
+  experience: { type: String, default: "" },
+  bio: { type: String, default: "" },
+  portfolioUrl: { type: String, default: "" },
 }, { timestamps: true });
 
 module.exports = mongoose.model("User", userSchema);

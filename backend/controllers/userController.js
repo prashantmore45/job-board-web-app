@@ -46,4 +46,35 @@ const toggleSaveJob = async (req, res) => {
   }
 };
 
-module.exports = { getSavedJobs, toggleSaveJob };
+/* Get User Profile & @route   GET /api/users/profile */
+const getProfile = async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id).select("-password -savedJobs");
+    res.json(user);
+  } catch (error) {
+    res.status(500).json({ message: "Server Error" });
+  }
+};
+
+/* Update User Profile & @route   PUT /api/users/profile */
+const updateProfile = async (req, res) => {
+  try {
+    const { name, skills, experience, bio, portfolioUrl } = req.body;
+    
+    const user = await User.findById(req.user._id);
+    
+    if (name) user.name = name;
+    if (skills !== undefined) user.skills = Array.isArray(skills) ? skills : skills.split(',').map(s => s.trim());
+    if (experience !== undefined) user.experience = experience;
+    if (bio !== undefined) user.bio = bio;
+    if (portfolioUrl !== undefined) user.portfolioUrl = portfolioUrl;
+    
+    await user.save();
+    
+    res.json(user);
+  } catch (error) {
+    res.status(500).json({ message: "Server Error" });
+  }
+};
+
+module.exports = { getSavedJobs, toggleSaveJob, getProfile, updateProfile };

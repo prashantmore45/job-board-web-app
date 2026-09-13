@@ -11,8 +11,8 @@ function Home() {
   useEffect(() => {
     const fetchFeatured = async () => {
       try {
-        const res = await API.get("/jobs");
-        setFeaturedJobs(res.data.slice(0, 3)); 
+        const res = await API.get("/jobs?limit=6"); // Just get latest 6 jobs for home page
+        setFeaturedJobs(res.data.jobs);
       } catch (error) {
         console.error("Error fetching jobs");
       }

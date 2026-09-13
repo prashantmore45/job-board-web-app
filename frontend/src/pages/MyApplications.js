@@ -11,7 +11,14 @@ function MyApplications() {
     const fetchMyApps = async () => {
       try {
         const res = await API.get("/application/my-applications");
-        setApplications(res.data);
+        // Map legacy statuses for candidate view
+        const mappedData = res.data.map(app => {
+          let newStatus = app.status;
+          if (newStatus === 'accepted') newStatus = 'offered';
+          if (newStatus === 'pending') newStatus = 'applied';
+          return { ...app, status: newStatus };
+        });
+        setApplications(mappedData);
       } catch (error) {
         console.error("Failed to fetch applications");
       }
@@ -62,9 +69,11 @@ function MyApplications() {
 
               <div className="mt-6 pt-4 border-t border-slate-100 dark:border-slate-700">
                 <span className={`block w-full text-center py-2 rounded-lg font-bold uppercase text-sm ${
-                  app.status === 'accepted' ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400' :
+                  app.status === 'offered' ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400' :
                   app.status === 'rejected' ? 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400' :
-                  'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400'
+                  app.status === 'interviewing' ? 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400' :
+                  app.status === 'screening' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400' :
+                  'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400'
                 }`}>
                   {app.status}
                 </span>

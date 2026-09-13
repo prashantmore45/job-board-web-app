@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { useEffect, useState } from "react";
+import { io } from "socket.io-client";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import Home from "./pages/Home";
@@ -38,10 +39,40 @@ function App() {
     setTheme(theme === 'dark' ? 'light' : 'dark');
   };
 
+  const [notifications, setNotifications] = useState([]);
+  
+  useEffect(() => {
+    const userStr = localStorage.getItem("user");
+    const token = localStorage.getItem("token");
+    let socket = null;
+
+    if (userStr && token) {
+      const user = JSON.parse(userStr);
+      if (user.role === 'candidate') {
+        const backendUrl = process.env.REACT_APP_BACKEND_URL || "http://localhost:5000";
+        socket = io(backendUrl.replace(/\/$/, ""), {
+          auth: { token }
+        });
+
+        socket.on("connect", () => {
+          console.log("Connected to socket server");
+        });
+
+        socket.on("statusUpdate", (data) => {
+          setNotifications(prev => [{ ...data, id: Date.now() + Math.random(), isRead: false }, ...prev]);
+        });
+      }
+    }
+
+    return () => {
+      if (socket) socket.disconnect();
+    };
+  }, []);
+
   return (
     <Router>
       <div className="flex flex-col min-h-screen bg-slate-50 dark:bg-slate-900 transition-colors duration-200">
-        <Navbar theme={theme} toggleTheme={toggleTheme} />
+        <Navbar theme={theme} toggleTheme={toggleTheme} notifications={notifications} setNotifications={setNotifications} />
         <main className="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <Routes>
             <Route path="/" element={<Home />} />

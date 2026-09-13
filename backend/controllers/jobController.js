@@ -17,9 +17,13 @@ const pickJobFields = (body) => {
 
 const getJobs = async (req, res) => {
   try {
-    const { keyword, location, type, workType, minSalary, maxSalary } = req.query;
+    const { keyword, location, type, workType, minSalary, maxSalary, employerId } = req.query;
 
     let query = {};
+
+    if (typeof employerId === "string" && isValidObjectId(employerId.trim())) {
+      query.postedBy = employerId.trim();
+    }
 
     if (typeof keyword === "string" && keyword.trim()) {
       query.title = { $regex: escapeRegex(keyword.trim()), $options: "i" };
@@ -52,9 +56,22 @@ const getJobs = async (req, res) => {
       if (Object.keys(query.salaryMax).length === 0) delete query.salaryMax;
     }
 
-    const jobs = await Job.find(query).sort({ createdAt: -1 });
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 20;
+    const skip = (page - 1) * limit;
 
-    res.json(jobs);
+    const totalJobs = await Job.countDocuments(query);
+    const jobs = await Job.find(query)
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit);
+
+    res.json({
+      jobs,
+      currentPage: page,
+      totalPages: Math.ceil(totalJobs / limit),
+      totalJobs
+    });
   } catch (error) {
     res.status(500).json({ message: "Server Error" });
   }

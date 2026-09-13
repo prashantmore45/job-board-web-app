@@ -82,7 +82,7 @@ const getJobApplications = async (req, res) => {
     }
 
     const applications = await Application.find({ job: jobId })
-      .populate("applicant", "name email");
+      .populate("applicant", "name email skills experience bio portfolioUrl");
     res.json(applications);
   } catch (error) {
     res.status(500).json({ message: "Server Error" });
@@ -121,7 +121,7 @@ const updateApplicationStatus = async (req, res) => {
       return res.status(404).json({ message: "Application not found" });
     }
 
-    const application = await Application.findById(req.params.id).populate("job", "postedBy");
+    const application = await Application.findById(req.params.id).populate("job", "postedBy title company");
 
     if (!application) {
       return res.status(404).json({ message: "Application not found" });
@@ -134,6 +134,18 @@ const updateApplicationStatus = async (req, res) => {
 
     application.status = status;
     await application.save();
+
+    try {
+      const io = require("../socket").getIo();
+      io.to(application.applicant.toString()).emit("statusUpdate", {
+        applicationId: application._id,
+        jobTitle: application.job.title,
+        company: application.job.company,
+        status: application.status
+      });
+    } catch (socketError) {
+      console.error("Socket emit failed:", socketError);
+    }
 
     res.json({ message: `Application marked as ${status}`, application });
   } catch (error) {

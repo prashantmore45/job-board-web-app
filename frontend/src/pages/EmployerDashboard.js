@@ -11,9 +11,9 @@ function EmployerDashboard() {
   useEffect(() => {
     const fetchJobs = async () => {
       try {
-        const res = await API.get("/jobs");
-        const userJobs = res.data.filter(job => job.postedBy === user._id);
-        setMyJobs(userJobs);
+        // Set a high limit so they see all their jobs, or implement pagination here later
+        const res = await API.get(`/jobs?employerId=${user._id}&limit=100`);
+        setMyJobs(res.data.jobs);
       } catch (error) {
         console.error("Error fetching jobs");
       }

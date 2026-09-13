@@ -7,6 +7,8 @@ function CandidateDashboard() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [jobs, setJobs] = useState([]);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
   const [savedJobs, setSavedJobs] = useState([]);
   
   const [search, setSearch] = useState({ 
@@ -26,8 +28,16 @@ function CandidateDashboard() {
         const workType = searchParams.get("workType") || "";
         const minSalary = searchParams.get("minSalary") || "";
         
-        const res = await API.get(`/jobs?keyword=${keyword}&location=${location}&type=${type}&workType=${workType}&minSalary=${minSalary}`);
-        setJobs(res.data);
+        const res = await API.get(`/jobs?keyword=${keyword}&location=${location}&type=${type}&workType=${workType}&minSalary=${minSalary}&page=${page}&limit=9`);
+        if (page === 1) {
+          setJobs(res.data.jobs);
+        } else {
+          setJobs(prev => {
+            const newJobs = res.data.jobs.filter(newJob => !prev.some(p => p._id === newJob._id));
+            return [...prev, ...newJobs];
+          });
+        }
+        setTotalPages(res.data.totalPages);
       } catch (error) {
         console.error("Failed to fetch jobs");
       }
@@ -43,8 +53,8 @@ function CandidateDashboard() {
     };
 
     fetchJobs();
-    fetchSavedJobs();
-  }, [searchParams]);
+    if (page === 1) fetchSavedJobs();
+  }, [searchParams, page]);
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -55,11 +65,13 @@ function CandidateDashboard() {
     if (search.workType) query.set("workType", search.workType);
     if (search.minSalary) query.set("minSalary", search.minSalary);
     
+    setPage(1);
     navigate(`/candidate-dashboard?${query.toString()}`);
   };
 
   const handleClear = () => {
     setSearch({ keyword: "", location: "", type: "", workType: "", minSalary: "" });
+    setPage(1);
     navigate("/candidate-dashboard");
   };
 
@@ -241,6 +253,17 @@ function CandidateDashboard() {
               </button>
             </motion.div>
           ))}
+        </div>
+      )}
+
+      {page < totalPages && (
+        <div className="flex justify-center mt-8">
+          <button 
+            onClick={() => setPage(prev => prev + 1)}
+            className="px-8 py-3 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 font-semibold rounded-lg shadow-sm transition-colors"
+          >
+            Load More Jobs
+          </button>
         </div>
       )}
     </div>
