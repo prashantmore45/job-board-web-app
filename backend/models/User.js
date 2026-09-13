@@ -11,7 +11,8 @@ const userSchema = new mongoose.Schema({
     default: 'candidate' 
   },
   
-  resume: { type: String, default: "" }
+  resume: { type: String, default: "" },
+  savedJobs: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Job' }]
 }, { timestamps: true });
 
 module.exports = mongoose.model("User", userSchema);

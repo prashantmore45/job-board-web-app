@@ -14,9 +14,11 @@ function EditJob() {
     title: "",
     company: "",
     location: "",
-    salary: "",
+    salaryMin: "",
+    salaryMax: "",
     description: "",
-    type: "Full-time"
+    type: "Full-time",
+    workType: "On-site"
   });
 
   useEffect(() => {
@@ -27,9 +29,11 @@ function EditJob() {
             title: res.data.title,
             company: res.data.company,
             location: res.data.location,
-            salary: res.data.salary,
+            salaryMin: res.data.salaryMin || "",
+            salaryMax: res.data.salaryMax || "",
             description: res.data.description,
-            type: res.data.type
+            type: res.data.type,
+            workType: res.data.workType || "On-site"
         });
         setLoading(false);
       } catch (error) {
@@ -50,7 +54,12 @@ function EditJob() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await API.put(`/jobs/${id}`, formData);
+      const payload = {
+        ...formData,
+        salaryMin: Number(formData.salaryMin),
+        salaryMax: Number(formData.salaryMax)
+      };
+      await API.put(`/jobs/${id}`, payload);
       alert("Job Updated Successfully!");
       navigate("/employer-dashboard");
     } catch (error) {
@@ -100,31 +109,48 @@ function EditJob() {
               className="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white dark:bg-slate-700 text-slate-900 dark:text-white transition"
             />
           </div>
+          <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Location</label>
+              <input 
+                name="location" 
+                placeholder="e.g. Remote, NY" 
+                value={formData.location} 
+                onChange={handleChange} 
+                required 
+                className="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white dark:bg-slate-700 text-slate-900 dark:text-white transition"
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Min Salary</label>
+                <input 
+                  type="number"
+                  name="salaryMin" 
+                  placeholder="e.g. 100000" 
+                  value={formData.salaryMin}
+                  onChange={handleChange} 
+                  required 
+                  className="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white dark:bg-slate-700 text-slate-900 dark:text-white transition"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Max Salary</label>
+                <input 
+                  type="number"
+                  name="salaryMax" 
+                  placeholder="e.g. 150000" 
+                  value={formData.salaryMax}
+                  onChange={handleChange} 
+                  required 
+                  className="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white dark:bg-slate-700 text-slate-900 dark:text-white transition"
+                />
+              </div>
+            </div>
+          </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Location</label>
-            <input 
-              name="location" 
-              placeholder="e.g. Remote, NY" 
-              value={formData.location} 
-              onChange={handleChange} 
-              required 
-              className="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white dark:bg-slate-700 text-slate-900 dark:text-white transition"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Salary / Compensation</label>
-            <input 
-              name="salary" 
-              placeholder="e.g. $100k - $120k" 
-              value={formData.salary} 
-              onChange={handleChange} 
-              required 
-              className="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white dark:bg-slate-700 text-slate-900 dark:text-white transition"
-            />
-          </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
             <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Employment Type</label>
             <select 
@@ -137,6 +163,19 @@ function EditJob() {
               <option value="Part-time">Part-time</option>
               <option value="Contract">Contract</option>
               <option value="Internship">Internship</option>
+            </select>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Work Type</label>
+            <select 
+              name="workType" 
+              value={formData.workType} 
+              onChange={handleChange}
+              className="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white dark:bg-slate-700 text-slate-900 dark:text-white transition"
+            >
+              <option value="On-site">On-site</option>
+              <option value="Hybrid">Hybrid</option>
+              <option value="Remote">Remote</option>
             </select>
           </div>
         </div>

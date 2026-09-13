@@ -11,9 +11,11 @@ function PostJob() {
     title: "",
     company: "",
     location: "",
-    salary: "",
+    salaryMin: "",
+    salaryMax: "",
     description: "",
-    type: "Full-time"
+    type: "Full-time",
+    workType: "On-site"
   });
 
   const handleChange = (e) =>
@@ -26,7 +28,12 @@ function PostJob() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await API.post("/jobs", formData);
+      const payload = {
+        ...formData,
+        salaryMin: Number(formData.salaryMin),
+        salaryMax: Number(formData.salaryMax)
+      };
+      await API.post("/jobs", payload);
       alert("Job Posted Successfully!");
       navigate("/employer-dashboard");
     } catch (error) {
@@ -65,39 +72,70 @@ function PostJob() {
               className="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
             />
           </div>
-          <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Location</label>
-            <input 
-              name="location" 
-              placeholder="e.g. Remote, New York" 
-              onChange={handleChange} 
-              required 
-              className="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Salary Range</label>
-            <input 
-              name="salary" 
-              placeholder="e.g. $100k - $120k/year" 
-              onChange={handleChange} 
-              required 
-              className="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
-            />
+          <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Location</label>
+              <input 
+                name="location" 
+                placeholder="e.g. New York, NY" 
+                onChange={handleChange} 
+                required 
+                className="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Min Salary</label>
+                <input 
+                  type="number"
+                  name="salaryMin" 
+                  placeholder="e.g. 100000" 
+                  onChange={handleChange} 
+                  required 
+                  className="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Max Salary</label>
+                <input 
+                  type="number"
+                  name="salaryMax" 
+                  placeholder="e.g. 150000" 
+                  onChange={handleChange} 
+                  required 
+                  className="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
+                />
+              </div>
+            </div>
           </div>
         </div>
         
-        <div>
-          <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Employment Type</label>
-          <select 
-            name="type" 
-            onChange={handleChange}
-            className="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
-          >
-            <option value="Full-time">Full-time</option>
-            <option value="Part-time">Part-time</option>
-            <option value="Contract">Contract</option>
-          </select>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Employment Type</label>
+            <select 
+              name="type" 
+              onChange={handleChange}
+              className="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
+            >
+              <option value="Full-time">Full-time</option>
+              <option value="Part-time">Part-time</option>
+              <option value="Contract">Contract</option>
+              <option value="Internship">Internship</option>
+            </select>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Work Type</label>
+            <select 
+              name="workType" 
+              onChange={handleChange}
+              className="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
+            >
+              <option value="On-site">On-site</option>
+              <option value="Hybrid">Hybrid</option>
+              <option value="Remote">Remote</option>
+            </select>
+          </div>
         </div>
 
         <div className="flex flex-col">

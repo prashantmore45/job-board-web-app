@@ -3,7 +3,7 @@ const { escapeRegex, isValidObjectId } = require("../utils/validators");
 
 // Only these fields may ever be written from a request body. Anything else
 // (notably postedBy) is dropped, so ownership cannot be reassigned.
-const JOB_FIELDS = ["title", "company", "location", "description", "salary", "type"];
+const JOB_FIELDS = ["title", "company", "location", "description", "salaryMin", "salaryMax", "type", "workType"];
 
 const pickJobFields = (body) => {
   const out = {};
@@ -17,18 +17,39 @@ const pickJobFields = (body) => {
 
 const getJobs = async (req, res) => {
   try {
-    const { keyword, location } = req.query;
+    const { keyword, location, type, workType, minSalary, maxSalary } = req.query;
 
     let query = {};
 
-    // Input is escaped before it reaches $regex: unescaped user input lets a
-    // crafted pattern such as (a+)+$ pin the database CPU (ReDoS).
     if (typeof keyword === "string" && keyword.trim()) {
       query.title = { $regex: escapeRegex(keyword.trim()), $options: "i" };
     }
 
     if (typeof location === "string" && location.trim()) {
       query.location = { $regex: escapeRegex(location.trim()), $options: "i" };
+    }
+
+    if (typeof type === "string" && type.trim()) {
+      query.type = type.trim();
+    }
+
+    if (typeof workType === "string" && workType.trim()) {
+      query.workType = workType.trim();
+    }
+
+    if (minSalary || maxSalary) {
+      query.salaryMin = {};
+      query.salaryMax = {};
+      if (minSalary) {
+        query.salaryMax.$gte = Number(minSalary); // Find jobs where max salary is at least minSalary
+      }
+      if (maxSalary) {
+        query.salaryMin.$lte = Number(maxSalary); // Find jobs where min salary is at most maxSalary
+      }
+      
+      // Clean up empty objects
+      if (Object.keys(query.salaryMin).length === 0) delete query.salaryMin;
+      if (Object.keys(query.salaryMax).length === 0) delete query.salaryMax;
     }
 
     const jobs = await Job.find(query).sort({ createdAt: -1 });
@@ -63,7 +84,7 @@ const getJobById = async (req, res) => {
 /* Create a new job (Employer only) & @route   POST /api/jobs */
 
 const createJob = async (req, res) => {
-  const { title, company, location, description, salary, type } = req.body;
+  const { title, company, location, description, salaryMin, salaryMax, type, workType } = req.body;
 
   if (req.user.role !== 'employer') {
     return res.status(403).json({ message: "Access denied. Only Employers can post jobs." });
@@ -82,8 +103,8 @@ const createJob = async (req, res) => {
   if (typeof description !== "string" || description.trim().length < 10) {
     return res.status(400).json({ message: "Description must be at least 10 characters long." });
   }
-  if (typeof salary !== "string" || salary.trim().length < 1) {
-    return res.status(400).json({ message: "Salary information is required." });
+  if (typeof salaryMin !== "number" || typeof salaryMax !== "number") {
+    return res.status(400).json({ message: "Valid salary range is required." });
   }
 
   try {
@@ -92,8 +113,10 @@ const createJob = async (req, res) => {
       company: company.trim(),
       location: location.trim(),
       description: description.trim(),
-      salary: salary.trim(),
+      salaryMin,
+      salaryMax,
       type,
+      workType,
       postedBy: req.user._id
     });
 

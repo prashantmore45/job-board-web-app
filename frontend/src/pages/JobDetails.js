@@ -9,6 +9,7 @@ function JobDetails() {
   const navigate = useNavigate();
   const [job, setJob] = useState(null);
   const [resume, setResume] = useState(null);
+  const [isSaved, setIsSaved] = useState(false);
 
   useEffect(() => {
     const fetchJob = async () => {
@@ -19,11 +20,31 @@ function JobDetails() {
         console.error("Failed to load job");
       }
     };
+    
+    const fetchSavedStatus = async () => {
+      try {
+        const res = await API.get('/users/saved-jobs');
+        setIsSaved(res.data.some(savedJob => savedJob._id === id));
+      } catch (error) {
+        console.error("Failed to fetch saved jobs");
+      }
+    };
+
     fetchJob();
+    fetchSavedStatus();
   }, [id]);
 
   const handleFileChange = (e) => {
     setResume(e.target.files[0]);
+  };
+
+  const toggleBookmark = async () => {
+    try {
+      const res = await API.post(`/users/save-job/${id}`);
+      setIsSaved(res.data.isSaved);
+    } catch (error) {
+      console.error("Failed to toggle bookmark");
+    }
   };
 
   const handleApply = async (e) => {
@@ -58,15 +79,38 @@ function JobDetails() {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
-      className="max-w-4xl mx-auto py-8"
+      className="max-w-4xl mx-auto py-8 px-4"
     >
-      <button 
-        onClick={() => navigate(-1)} 
-        className="mb-6 flex items-center text-slate-600 dark:text-slate-400 hover:text-primary-600 transition"
-      >
-        <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
-        Back to Jobs
-      </button>
+      <div className="flex justify-between items-center mb-6">
+        <button 
+          onClick={() => navigate(-1)} 
+          className="flex items-center text-slate-600 dark:text-slate-400 hover:text-primary-600 transition"
+        >
+          <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
+          Back to Jobs
+        </button>
+        
+        <button 
+          onClick={toggleBookmark}
+          className={`flex items-center px-4 py-2 rounded-lg font-medium transition-colors ${
+            isSaved 
+              ? "bg-primary-50 dark:bg-slate-800 text-primary-600 dark:text-primary-400 border border-primary-200 dark:border-primary-800"
+              : "bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700"
+          }`}
+        >
+          {isSaved ? (
+            <>
+              <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20"><path d="M5 4a2 2 0 012-2h6a2 2 0 012 2v14l-5-2.5L5 18V4z" /></svg>
+              Saved
+            </>
+          ) : (
+            <>
+              <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" /></svg>
+              Save Job
+            </>
+          )}
+        </button>
+      </div>
       
       <div className="bg-white dark:bg-slate-800 rounded-xl shadow-md border border-slate-100 dark:border-slate-700 overflow-hidden mb-8">
         <div className="p-8 border-b border-slate-100 dark:border-slate-700">
@@ -76,11 +120,11 @@ function JobDetails() {
           <div className="flex flex-wrap gap-4 bg-slate-50 dark:bg-slate-900/50 p-4 rounded-lg">
             <div className="flex items-center text-slate-700 dark:text-slate-300">
               <span className="text-xl mr-2">📍</span> 
-              <span className="font-semibold mr-1">Location:</span> {job.location}
+              <span className="font-semibold mr-1">Location:</span> {job.location} ({job.workType || 'On-site'})
             </div>
             <div className="flex items-center text-slate-700 dark:text-slate-300">
               <span className="text-xl mr-2">💰</span> 
-              <span className="font-semibold mr-1">Salary:</span> {job.salary}
+              <span className="font-semibold mr-1">Salary:</span> ${job.salaryMin ? job.salaryMin.toLocaleString() : 'N/A'} - ${job.salaryMax ? job.salaryMax.toLocaleString() : 'N/A'}
             </div>
             <div className="flex items-center text-slate-700 dark:text-slate-300">
               <span className="text-xl mr-2">🕒</span> 

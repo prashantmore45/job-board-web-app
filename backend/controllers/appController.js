@@ -3,7 +3,7 @@ const Job = require("../models/Job");
 const sendEmail = require("../utils/emailService");
 const { isValidObjectId } = require("../utils/validators");
 
-const ALLOWED_STATUSES = ["applied", "accepted", "rejected"];
+const ALLOWED_STATUSES = ["applied", "screening", "interviewing", "offered", "rejected"];
 
 // Apply for a job (Candidate only)
 

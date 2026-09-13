@@ -14,7 +14,7 @@ const applicationSchema = new mongoose.Schema({
   resume: { type: String, required: true }, // Stores the file path (e.g., "uploads/resume-123.pdf")
   status: { 
     type: String, 
-    enum: ['applied', 'accepted', 'rejected'], 
+    enum: ['applied', 'screening', 'interviewing', 'offered', 'rejected'], 
     default: 'applied' 
   }
 }, { timestamps: true });

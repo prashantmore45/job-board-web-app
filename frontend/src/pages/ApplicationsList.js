@@ -2,17 +2,132 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import API from "../services/api";
 import { motion } from "framer-motion";
+import {
+  DndContext,
+  closestCorners,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragOverlay
+} from "@dnd-kit/core";
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+  useSortable
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+
+const COLUMNS = [
+  { id: "applied", title: "Applied" },
+  { id: "screening", title: "Screening" },
+  { id: "interviewing", title: "Interviewing" },
+  { id: "offered", title: "Offered" },
+  { id: "rejected", title: "Rejected" },
+];
+
+function SortableItem({ id, application }) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging
+  } = useSortable({ id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      {...attributes}
+      {...listeners}
+      className="bg-white dark:bg-slate-800 p-4 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 cursor-grab active:cursor-grabbing mb-3 group"
+    >
+      <h4 className="font-bold text-slate-900 dark:text-white line-clamp-1">
+        {application.applicant ? application.applicant.name : "Unknown"}
+      </h4>
+      <p className="text-sm text-slate-500 dark:text-slate-400 mb-3 line-clamp-1">
+        {application.applicant ? application.applicant.email : "N/A"}
+      </p>
+      
+      <a 
+        href={`${(process.env.REACT_APP_BACKEND_URL || "http://localhost:5000").replace(/\/$/, "")}/${application.resume.replace(/\\/g, "/")}`} 
+        target="_blank" 
+        rel="noopener noreferrer"
+        onPointerDown={(e) => e.stopPropagation()} // Prevent dragging when clicking link
+        className="block w-full py-1.5 bg-primary-50 hover:bg-primary-100 dark:bg-primary-900/20 dark:hover:bg-primary-900/40 text-primary-700 dark:text-primary-400 text-xs font-semibold text-center rounded transition-colors"
+      >
+        📄 View Resume
+      </a>
+    </div>
+  );
+}
+
+function KanbanColumn({ id, title, applications }) {
+  return (
+    <div className="bg-slate-50 dark:bg-slate-900/50 p-4 rounded-xl min-w-[280px] w-[280px] flex-shrink-0 flex flex-col max-h-[75vh]">
+      <div className="flex justify-between items-center mb-4">
+        <h3 className="font-bold text-slate-700 dark:text-slate-300 uppercase text-sm tracking-wider">{title}</h3>
+        <span className="bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 text-xs font-bold px-2 py-1 rounded-full">
+          {applications.length}
+        </span>
+      </div>
+      
+      <div className="flex-1 overflow-y-auto pr-1 pb-2 scrollbar-thin">
+        <SortableContext 
+          id={id}
+          items={applications.map(app => app._id)}
+          strategy={verticalListSortingStrategy}
+        >
+          {applications.map((app) => (
+            <SortableItem key={app._id} id={app._id} application={app} />
+          ))}
+        </SortableContext>
+        {applications.length === 0 && (
+          <div className="h-24 border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-lg flex items-center justify-center text-slate-400 dark:text-slate-500 text-sm">
+            Drop here
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
 
 function ApplicationsList() {
   const { jobId } = useParams();
   const navigate = useNavigate();
   const [applications, setApplications] = useState([]);
+  const [activeId, setActiveId] = useState(null);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 5, // 5px drag distance before firing
+      },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
 
   useEffect(() => {
     const fetchApplications = async () => {
       try {
         const res = await API.get(`/application/${jobId}`);
-        setApplications(res.data);
+        // Map old 'accepted' status to 'offered' so the board doesn't break for old data
+        const mappedData = res.data.map(app => 
+          app.status === 'accepted' ? { ...app, status: 'offered' } : app
+        );
+        setApplications(mappedData);
       } catch (error) {
         alert("Failed to fetch applications.");
       }
@@ -20,97 +135,134 @@ function ApplicationsList() {
     fetchApplications();
   }, [jobId]);
 
-  const handleStatus = async (appId, newStatus) => {
-    try {
-      await API.put(`/application/${appId}/status`, { status: newStatus });
-      alert(`Candidate marked as ${newStatus}`);
+  const handleDragStart = (event) => {
+    setActiveId(event.active.id);
+  };
+
+  const handleDragOver = (event) => {
+    const { active, over } = event;
+    if (!over) return;
+
+    const activeId = active.id;
+    const overId = over.id;
+
+    if (activeId === overId) return;
+
+    // Find the containers
+    const activeApp = applications.find(app => app._id === activeId);
+    const overApp = applications.find(app => app._id === overId);
+    
+    const activeStatus = activeApp?.status;
+    const overStatus = overApp ? overApp.status : over.id; // over.id is the column id if empty
+
+    if (!activeStatus || !overStatus || activeStatus === overStatus) return;
+
+    setApplications((prev) => {
+      const activeItems = prev.filter(app => app.status === activeStatus);
+      const overItems = prev.filter(app => app.status === overStatus);
       
-      setApplications((prev) => 
-        prev.map((app) => app._id === appId ? { ...app, status: newStatus } : app)
-      );
+      const activeIndex = prev.findIndex(app => app._id === activeId);
+      const overIndex = prev.findIndex(app => app._id === overId);
+
+      let newIndex;
+      if (overId in COLUMNS.map(c => c.id)) {
+        newIndex = overItems.length + 1;
+      } else {
+        const isBelowOverItem =
+          over &&
+          active.rect.current.translated &&
+          active.rect.current.translated.top > over.rect.top + over.rect.height;
+        const modifier = isBelowOverItem ? 1 : 0;
+        newIndex = overIndex >= 0 ? overIndex + modifier : overItems.length + 1;
+      }
+
+      const newItems = [...prev];
+      newItems[activeIndex] = { ...newItems[activeIndex], status: overStatus };
+      
+      // We don't reorder within columns strictly since order isn't saved to DB, 
+      // but we update the status optimistically.
+      return newItems;
+    });
+  };
+
+  const handleDragEnd = async (event) => {
+    const { active, over } = event;
+    setActiveId(null);
+
+    if (!over) return;
+
+    const activeId = active.id;
+    const activeApp = applications.find(app => app._id === activeId);
+    if (!activeApp) return;
+
+    // Find what status we dropped into
+    const overApp = applications.find(app => app._id === over.id);
+    const newStatus = overApp ? overApp.status : over.id;
+    
+    // Save to DB
+    try {
+      await API.put(`/application/${activeId}/status`, { status: newStatus });
     } catch (error) {
       alert("Failed to update status");
+      // Could revert optimistic update here
     }
   };
 
+  const getApplicationsByStatus = (status) => {
+    return applications.filter((app) => app.status === status);
+  };
+
+  const activeApplication = activeId ? applications.find(app => app._id === activeId) : null;
+
   return (
-    <div className="max-w-7xl mx-auto py-8">
-      <button 
-        onClick={() => navigate("/employer-dashboard")} 
-        className="mb-6 flex items-center text-slate-600 dark:text-slate-400 hover:text-primary-600 transition"
-      >
-        <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
-        Back to Dashboard
-      </button>
-      
-      <div className="mb-8">
-        <h2 className="text-3xl font-bold text-slate-900 dark:text-white">Applicants for this Job</h2>
-        <p className="text-slate-500 dark:text-slate-400 mt-1">Review and manage candidates.</p>
+    <div className="max-w-[1400px] mx-auto py-8 overflow-hidden h-[90vh] flex flex-col">
+      <div className="flex justify-between items-center mb-6">
+        <div>
+          <button 
+            onClick={() => navigate("/employer-dashboard")} 
+            className="mb-2 flex items-center text-slate-600 dark:text-slate-400 hover:text-primary-600 transition text-sm"
+          >
+            <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
+            Back to Dashboard
+          </button>
+          <h2 className="text-3xl font-bold text-slate-900 dark:text-white">Applicant Tracking</h2>
+          <p className="text-slate-500 dark:text-slate-400 mt-1">Drag and drop candidates to update their status.</p>
+        </div>
       </div>
       
-      {applications.length === 0 ? (
-        <div className="bg-slate-50 dark:bg-slate-800 border border-dashed border-slate-300 dark:border-slate-600 rounded-xl p-12 text-center">
-          <p className="text-slate-500 dark:text-slate-400 text-lg">No applications yet.</p>
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {applications.map((app, index) => (
-            <motion.div 
-              key={app._id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3, delay: index * 0.1 }}
-              className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-100 dark:border-slate-700 p-6 flex flex-col justify-between h-full"
-            >
-              <div>
-                <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-1">
-                  {app.applicant ? app.applicant.name : "Unknown Candidate (Deleted User)"}
-                </h3>
-                <p className="text-slate-500 dark:text-slate-400 mb-4">
-                  {app.applicant ? app.applicant.email : "No Email Available"}
+      <div className="flex-1 overflow-x-auto pb-4 custom-scrollbar">
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCorners}
+          onDragStart={handleDragStart}
+          onDragOver={handleDragOver}
+          onDragEnd={handleDragEnd}
+        >
+          <div className="flex gap-6 h-full items-start w-max px-2 py-4">
+            {COLUMNS.map((col) => (
+              <KanbanColumn 
+                key={col.id} 
+                id={col.id} 
+                title={col.title} 
+                applications={getApplicationsByStatus(col.id)} 
+              />
+            ))}
+          </div>
+
+          <DragOverlay>
+            {activeApplication ? (
+              <div className="bg-white dark:bg-slate-800 p-4 rounded-lg shadow-xl border-2 border-primary-500 opacity-90 rotate-2 w-[248px]">
+                <h4 className="font-bold text-slate-900 dark:text-white line-clamp-1">
+                  {activeApplication.applicant ? activeApplication.applicant.name : "Unknown"}
+                </h4>
+                <p className="text-sm text-slate-500 dark:text-slate-400">
+                  Dragging...
                 </p>
-                
-                <div className="flex items-center mb-4">
-                  <span className="text-sm font-semibold text-slate-700 dark:text-slate-300 mr-2">Status:</span>
-                  <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold uppercase ${
-                    app.status === "accepted" ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400" : 
-                    app.status === "rejected" ? "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400" : 
-                    "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400"
-                  }`}>
-                    {app.status}
-                  </span>
-                </div>
               </div>
-
-              <div className="mt-4 space-y-3">
-                <a 
-                  href={`${(process.env.REACT_APP_BACKEND_URL || "http://localhost:5000").replace(/\/$/, "")}/${app.resume.replace(/\\/g, "/")}`} 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="block w-full py-2 bg-primary-600 hover:bg-primary-700 text-white font-semibold text-center rounded-lg transition-colors"
-                >
-                  📄 Download Resume
-                </a>
-
-                <div className="flex gap-3">
-                  <button 
-                    onClick={() => handleStatus(app._id, "accepted")}
-                    className="flex-1 py-2 bg-green-50 hover:bg-green-100 dark:bg-green-900/20 dark:hover:bg-green-900/40 text-green-700 dark:text-green-400 font-medium rounded-lg transition-colors flex items-center justify-center"
-                  >
-                    ✅ Accept
-                  </button>
-                  <button 
-                    onClick={() => handleStatus(app._id, "rejected")}
-                    className="flex-1 py-2 bg-red-50 hover:bg-red-100 dark:bg-red-900/20 dark:hover:bg-red-900/40 text-red-700 dark:text-red-400 font-medium rounded-lg transition-colors flex items-center justify-center"
-                  >
-                    ❌ Reject
-                  </button>
-                </div>
-              </div>
-            </motion.div>
-          ))}
-        </div>
-      )}
+            ) : null}
+          </DragOverlay>
+        </DndContext>
+      </div>
     </div>
   );
 }
