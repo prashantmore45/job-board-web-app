@@ -24,6 +24,9 @@ const userSchema = new mongoose.Schema({
   companyWebsite: { type: String, default: "" },
   companyLocation: { type: String, default: "" },
   companyDescription: { type: String, default: "" },
+
+  resetPasswordToken: String,
+  resetPasswordExpire: Date,
 }, { timestamps: true });
 
 module.exports = mongoose.model("User", userSchema);

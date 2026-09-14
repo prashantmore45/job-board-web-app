@@ -15,6 +15,8 @@ import MyApplications from "./pages/MyApplications";
 import EditJob from "./pages/EditJob";
 import Profile from "./pages/Profile";
 import SavedJobs from "./pages/SavedJobs";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 
 function PrivateRoute({ children, role }) {
   const user = JSON.parse(localStorage.getItem("user"));
@@ -81,6 +83,8 @@ function App() {
                 <Routes>
                   <Route path="login" element={<Login />} />
                   <Route path="register" element={<Register />} />
+                  <Route path="forgot-password" element={<ForgotPassword />} />
+                  <Route path="reset-password/:token" element={<ResetPassword />} />
                   
                   <Route path="employer-dashboard" element={<PrivateRoute role="employer"><EmployerDashboard /></PrivateRoute>} />
                   <Route path="post-job" element={<PrivateRoute role="employer"><PostJob /></PrivateRoute>} />
