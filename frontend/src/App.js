@@ -17,6 +17,9 @@ import Profile from "./pages/Profile";
 import SavedJobs from "./pages/SavedJobs";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
+import Privacy from "./pages/Privacy";
+import Terms from "./pages/Terms";
+import ScrollToTop from "./components/ScrollToTop";
 
 function PrivateRoute({ children, role }) {
   const user = JSON.parse(localStorage.getItem("user"));
@@ -73,6 +76,7 @@ function App() {
 
   return (
     <Router>
+      <ScrollToTop />
       <div className="flex flex-col min-h-screen bg-slate-50 dark:bg-slate-900 transition-colors duration-200">
         <Navbar theme={theme} toggleTheme={toggleTheme} notifications={notifications} setNotifications={setNotifications} />
         <main className="flex-1 w-full flex flex-col">
@@ -97,6 +101,8 @@ function App() {
                   
                   <Route path="job/:id" element={<PrivateRoute><JobDetails /></PrivateRoute>} />
                   <Route path="profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
+                  <Route path="privacy" element={<Privacy />} />
+                  <Route path="terms" element={<Terms />} />
                 </Routes>
               </div>
             } />

@@ -28,7 +28,7 @@ function Home() {
   return (
     <div className="w-full overflow-x-hidden">
       {/* Hero Section */}
-      <section className="relative w-full pt-32 pb-24 lg:pt-40 lg:pb-32 mesh-bg-light dark:mesh-bg overflow-hidden flex items-center">
+      <section className="relative w-full pt-20 pb-24 lg:pt-28 lg:pb-32 mesh-bg-light dark:mesh-bg overflow-hidden flex items-center">
         {/* Subtle decorative circles */}
         <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary-400/20 dark:bg-primary-600/20 rounded-full blur-3xl mix-blend-multiply dark:mix-blend-screen pointer-events-none"></div>
         <div className="absolute bottom-1/4 right-1/4 w-[30rem] h-[30rem] bg-indigo-400/20 dark:bg-indigo-600/20 rounded-full blur-3xl mix-blend-multiply dark:mix-blend-screen pointer-events-none"></div>
@@ -113,12 +113,12 @@ function Home() {
       <section className="w-full py-12 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <p className="text-sm font-bold tracking-widest text-slate-400 uppercase mb-8">Trusted by industry leaders</p>
-          <div className="flex flex-wrap justify-center items-center gap-8 md:gap-16 opacity-50 grayscale hover:grayscale-0 transition-all duration-500">
-            <h2 className="text-2xl font-bold font-serif">Google</h2>
-            <h2 className="text-2xl font-bold tracking-tighter">stripe</h2>
-            <h2 className="text-2xl font-bold italic">Spotify</h2>
-            <h2 className="text-2xl font-bold">Netflix</h2>
-            <h2 className="text-2xl font-extrabold tracking-widest">AIRBNB</h2>
+          <div className="flex flex-wrap justify-center items-center gap-8 md:gap-16 opacity-70 hover:opacity-100 transition-opacity duration-300">
+            <h2 className="text-2xl font-bold font-serif text-blue-500">Google</h2>
+            <h2 className="text-2xl font-bold tracking-tighter text-indigo-500">stripe</h2>
+            <h2 className="text-2xl font-bold italic text-green-500">Spotify</h2>
+            <h2 className="text-2xl font-bold text-red-600">Netflix</h2>
+            <h2 className="text-2xl font-extrabold tracking-widest text-rose-500">AIRBNB</h2>
           </div>
         </div>
       </section>

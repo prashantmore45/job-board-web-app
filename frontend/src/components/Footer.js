@@ -19,7 +19,7 @@ function Footer() {
             <ul className="space-y-3 text-slate-500 dark:text-slate-400 font-medium">
               <li><Link to="/candidate-dashboard" className="hover:text-primary-600 dark:hover:text-primary-400 transition-colors">Find Jobs</Link></li>
               <li><Link to="/profile" className="hover:text-primary-600 dark:hover:text-primary-400 transition-colors">Build Profile</Link></li>
-              <li><Link to="/" className="hover:text-primary-600 dark:hover:text-primary-400 transition-colors">Career Advice</Link></li>
+              <li><Link to="/" onClick={() => window.scrollTo(0, 0)} className="hover:text-primary-600 dark:hover:text-primary-400 transition-colors">Career Advice</Link></li>
             </ul>
           </div>
           <div>
@@ -27,7 +27,7 @@ function Footer() {
             <ul className="space-y-3 text-slate-500 dark:text-slate-400 font-medium">
               <li><Link to="/post-job" className="hover:text-primary-600 dark:hover:text-primary-400 transition-colors">Post a Job</Link></li>
               <li><Link to="/employer-dashboard" className="hover:text-primary-600 dark:hover:text-primary-400 transition-colors">Browse Candidates</Link></li>
-              <li><Link to="/" className="hover:text-primary-600 dark:hover:text-primary-400 transition-colors">Pricing</Link></li>
+              <li><Link to="/" onClick={() => window.scrollTo(0, 0)} className="hover:text-primary-600 dark:hover:text-primary-400 transition-colors">Pricing</Link></li>
             </ul>
           </div>
         </div>
@@ -37,8 +37,8 @@ function Footer() {
             &copy; {new Date().getFullYear()} JobBoard. All rights reserved.
           </p>
           <div className="flex space-x-6 text-sm font-medium text-slate-500 dark:text-slate-400">
-            <Link to="/" className="hover:text-slate-900 dark:hover:text-white transition-colors">Privacy Policy</Link>
-            <Link to="/" className="hover:text-slate-900 dark:hover:text-white transition-colors">Terms of Service</Link>
+            <Link to="/privacy" className="hover:text-slate-900 dark:hover:text-white transition-colors">Privacy Policy</Link>
+            <Link to="/terms" className="hover:text-slate-900 dark:hover:text-white transition-colors">Terms of Service</Link>
           </div>
         </div>
       </div>
