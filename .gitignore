@@ -27,3 +27,5 @@ yarn-debug.log*
 .DS_Store
 .vscode/
 Thumbs.db
+
+PROJECT_EXPLANATION.md
